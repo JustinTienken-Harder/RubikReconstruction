@@ -200,6 +200,28 @@ class Cube:
             if letter in Cube._mce:
                 self._center = permute(self._center, Cube._mce[letter])
 
+    def basic_state_vector(self):
+        '''
+        Method to return the current state of the cube as a vector of numbers (useful for training a Neural Network):
+
+        Looks like:
+        [corner_orient, corner_permute, edge_orient, edge_permute]
+        For a solved cube:
+        [0,0,0,0,0,0,0,0,
+         0,1,2,3,4,5,6,7,    0,0,0,0,0,0,0,0,0,0,0,0,
+                             0,1,2,3,4,5,6,7,8,9,10,11]
+
+        Only good for finding solutions that doesn't utilize moves that change the cube's orientation (both for computation speed, and ease of implementation)
+            Todo:
+                - Create a better, more versatile representation that is either lower-dimensional or allows for changing cube orientations
+        '''
+        out= []
+        out.extend(self._corner_orient[x] for x in range(8))
+        out.extend(self._corner_perm[x] for x in range(8))
+        out.extend(self._edge_orient[x] for x in range(12))
+        out.extend(self._edge_perm[x] for x in range(12))
+        return out
+
     def string_parse(self, string):
         '''
         Method to parse input strings. Replaces anything with parenthesis, commas, newlines, forward or backslashes with spaces. Removes any illegible turns which would be comments or empty strings.
@@ -234,6 +256,7 @@ class Cube:
         legal_moves = [x for x in moves if x in legal]
         commutator_remains = " ".join(legal_moves) #make a string for parse_comm
         #Hopefully nobody uses stuff like Rw in a commutator, otherwise we'll need to update the inverse function
+        #We will find out when we test out the database.
         last_cleaning = parse_comm(commutator_remains)
         #This will remove any duplicate spaces introduced by parsing the commutator
         out = [x for x in last_cleaning.split(" ") if x != ""]
@@ -286,7 +309,7 @@ R' U2' R' U2 R U' R'
 U' R' U' R U R' U2' R
 U2 F R U R' U' R U R' U' F'
 U2 M U' U2' M U'M' U2' M' U2' M2'"""
-    bad_comm = "[["+scramble+":[[R,U],[R,U]]]:R2 R2]"
+    bad_comm = "[["+scramble+":[[R,U],[R,U]]]:[R2 F2 U2, R2] [U': [F2,U2] F2]"
     rubik = Cube()
     rubik(scramble)
     print(rubik)
