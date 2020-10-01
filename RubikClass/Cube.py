@@ -151,7 +151,7 @@ class Cube:
 
     def __call__(self, moves):
         if type(moves) is list:
-            self._history += " "+" ".join(moves)
+            self.history += " "+" ".join(moves)
             for move in moves:
                 self.turn(move)
         elif type(moves) is str:
@@ -309,14 +309,16 @@ R' U2' R' U2 R U' R'
 U' R' U' R U R' U2' R
 U2 F R U R' U' R U R' U' F'
 U2 M U' U2' M U'M' U2' M' U2' M2'"""
-    bad_comm = "[["+scramble+":[[R,U],[R,U]]]:[R2 F2 U2, R2] [U': [F2,U2] F2]"
+    bad_comm = "[["+scramble+":[[R,U],[R,U]]]:[R2 F2 U2: R2] [U': [F2,U2] F2]]"
     rubik = Cube()
     rubik(scramble)
     print(rubik)
     rubik(solution)
-    print(rubik.is_solved())
+    print("So far the moves performed are: "+ rubik.history)
+    print("Is the cube solved? " + str(rubik.is_solved()))
     rubik(bad_comm)
-    print(rubik.is_solved())
+    print(rubik)
+    print("Is the cube solved? " +str(rubik.is_solved()))
     import sys
     sus_string = " ".join(sys.argv[1:])
     rubik(sus_string)
