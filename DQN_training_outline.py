@@ -128,8 +128,7 @@ class DQNAgent:
         #Could put tensorboard in here.
         self.model.fit(np.array(X), np.array(y), batch_size = MINIBATCH_SIZE, verbose=0)
         #Update your target update counter every episode (full rubik's cube you solve)
-        if terminal_state:
-            self.target_update_counter += 1
+        self.target_update_counter += 1
         #If update counter reaches threshold, you actually update the target model.
         if self.target_update_counter > UPDATE_TARGET_MODEL_EVERY:
             self.target_model.set_weights(self.model.get_weights())
@@ -142,7 +141,9 @@ class DQNAgent:
         Conceptual issues:
             - How do we deal with terminal states (solved cubes) as next_states when we pass it into the _hidden_train.
         '''
+        # Only needed for a history of model performance.
         training_history = []
+        #Or total number of cubes you should try to solve.
         for episode in range(1, EPISODES+1):
             #maybe update tensorboard, I've been looking at it, could be cool.
             #otherwise restart everything
@@ -152,7 +153,7 @@ class DQNAgent:
             current_state = env.reset() #Restart and get the first, initial state
             #Restart finishing flag
             done = False
-            while not done:
+            while not done: #solving the cube
                 if np.random.random() > epsilon:
                     #Get action from the Q-table
                     action = np.argmax(self.get_qs(current_state))
