@@ -23,7 +23,7 @@ This allows us to easily calculate exact stickers based on the following sticker
 Each "orientation" is determined by the shortest x/z rotation to get some face (say, 2) to the U layer. We adopt x2 as the rotation for getting the D layer to the U layer.
 """
 
-default = 'w'*9+'b'*9+"r"*9+"g"*9+'o'*9+'y'*9
+#default = 'w'*9+'b'*9+"r"*9+"g"*9+'o'*9+'y'*9
 '''
 #OLD forgot when defining the corner cubie you need to go around it in one direction.
 lookup = {"ULF":Cubie([6,4*9+8,3*9+0]),"ULB":Cubie([0,4*9+2,9+6]),
