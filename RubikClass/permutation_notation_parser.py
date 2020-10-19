@@ -1,10 +1,30 @@
-def permutation_parser(in_string, lookup = {}):
+def parse_wrapper(func):
     '''
-    A common cube notation for a 3-cycle is the following:
-    URB -> DLF -> RBD
+    Wrapper for the permutation parser to split permuatations into components based on " & " signs in cyclic notation.
 
-    This function takes such a string in, and outputs a cycle to be performed on the sticker-representation of a rubik's cube.
+    Converts "URB -> ULF & ULB -> URF" to ['URB -> ULF', 'ULB -> URF'] and calls permutation parser on each element of this list.
     '''
+    def wrapping(string_input):
+        out = string_input.split(" & ")
+        out = [func(x) for x in out]
+        return out
+    return wrapping
+
+@parse_wrapper
+def permutation_parser(in_string, lookup):
+    '''
+    A common cube notation for a 3-cycle is any of the equivalent formulations:
+    URB -> DLF -> RBD
+    URB -> DFL -> RDB
+    BUR -> LDF -> BDR
+
+
+    This function takes such a string in, and outputs a cycle to be performed on the cubies based on the input lookup table of a rubik's cube.
+    Output looks something like a list of cycles to perform:
+
+    [(1,2,3), (6,7,8), (9,11,12)]
+    '''
+    #Utilized to find the "Canonical" orientation. Tells a cubie how to be rotated.
     sort_key = lambda x: (0 if (x == "U" or x == "D") \
                                     else (1 if (x == "R" or x == "L")\
                                     else 2))
@@ -15,8 +35,6 @@ def permutation_parser(in_string, lookup = {}):
             raise AttributeError("CANNOT PARSE NON-CYCLES")
     else:
         split = in_string.split("->")
-    #TODO: implement sequential commutator parser for cases like:
-    # URB -> FUR -> LUB URB -> FUR -> DLR
     # remove any whitespace
     reshaped = [x.replace(" ", "") for x in split]
     reshaped = [x for x in reshaped if x != ""]
@@ -35,12 +53,12 @@ def permutation_parser(in_string, lookup = {}):
         if seed_reor != 0:
             seed_reor = 1
     #now we can start going through our reshaped list
-    #get the current cubie representation here?
 
     #Helper function to get the canonical representation of a cubie, BUR becomes URB
     canon = lambda it: "".join(sorted(it, key = sort_key))
+    #lookup[canon(first)] gets the canonical representation of a cubie while (seed_reor%modulus) "rotates" it according to the input 
     output_cycle = [lookup[canon(first)](seed_reor%modulus)]
-    if is_edge:
+    if is_edge: #have to deal with corner/edge commutators seperately
         for piece in reshaped[1:]:
             piece_canon = canon(piece)
             if piece == piece_canon:
@@ -57,5 +75,7 @@ def permutation_parser(in_string, lookup = {}):
             total_reor = (seed_reor + rel_reor)%modulus
             out_cubie = lookup[piece_canon](total_reor)
             output_cycle.append(out_cubie)
+    #we now have a list of [[1,2], [3,4], [5,6]], but we actually want to send stickers 1->3->5 and 2->4->6
+    #so we zip up the list. 
     zipped_up = zip(*output_cycle)
-    return zipped_up
+    return list(zipped_up)
