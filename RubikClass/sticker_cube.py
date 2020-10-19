@@ -209,47 +209,6 @@ class Cube: #Might actually be a representation of the abstract object.
             else:
                 return False
 
-rubik = Cube()
-
-rubik("x")
-print(rubik)
-rubik.reset()
-
-rubik("x2")
-print(rubik)
-rubik.reset()
-
-rubik("x'")
-print(rubik)
-rubik.reset()
-
-rubik("y")
-print(rubik)
-rubik.reset()
-
-rubik("y2")
-print(rubik)
-rubik.reset()
-
-rubik("y'")
-print(rubik)
-rubik.reset()
-
-rubik("z'")
-print(rubik)
-rubik.reset()
-
-rubik("z2")
-print(rubik)
-rubik.reset()
-
-rubik("z")
-print(rubik)
-rubik.reset()
-
-
-"F turns L' Turns x2"
-
 
 
 if __name__  == "__main__":
