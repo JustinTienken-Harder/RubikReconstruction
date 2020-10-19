@@ -3,13 +3,15 @@ class Cubie(list):
         '''
         Essentially defines the index locations of each element of a cubie inside of the string. Will allow for easier manipulations of the cube depending on the moves performed.
 
-        Representation of a cubie follows this formal schema of index locations referenced:
+        Representation of a cubie follows this formal schema of index locations referenced by order of importance:
 
         [U/D, R/L, F/B]
 
-        This means for an edge, it's sticker locations (in the list representation) will always be ordered by the aforementioned order of importance. Therefore, when we want to represent a cycle of URB -> RUF -> FDR, we will need to perform the following call on each piece [cubie1(), cubie2(1), cubie3(1)]
+        The first element of a cubie should be the face with most priority, subsequent elements are faces counterclockwise from that inital face:
 
-        Only implementing for the __call__ method allowing us to rotate pieces's absolute. This is utilized for when we define
+        This means for an edge, it's sticker locations (in the list representation) will always be ordered by the aforementioned order of importance.
+
+        The __call__ method allows us to rotate pieces's absolute canonical order. Useful for parsing cuber permutation notation.
         '''
         self.default_value = list(input_list)
         if len(input_list) == 3:
@@ -77,8 +79,4 @@ This allows us to easily calculate exact stickers based on the following sticker
 Each "orientation" is determined by the shortest x/z rotation to get some face (say, 2) to the U layer. We adopt x2 as the rotation for getting the D layer to the U layer.
 """
 
-
-
-if __name__ == "__main__":
-    tester = "URB -> DLF -> RBD"
-    tester2 = 'RUB -> LFD -> DRB'
+#default_cube_string = 'w'*9+'b'*9+"r"*9+"g"*9+'o'*9+'y'*9
