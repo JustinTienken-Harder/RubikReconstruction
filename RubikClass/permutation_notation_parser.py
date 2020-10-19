@@ -24,10 +24,12 @@ def permutation_parser(in_string, lookup):
 
     [(1,2,3), (6,7,8), (9,11,12)]
     '''
-    #Utilized to find the "Canonical" orientation. Tells a cubie how to be rotated.
-    sort_key = lambda x: (0 if (x == "U" or x == "D") \
+    #Utilized to find the "Canonical" orientation. Representation
+    sk = lambda x: (0 if (x == "U" or x == "D") \
                                     else (1 if (x == "R" or x == "L")\
                                     else 2))
+    # This is all for just parsing the string into a list:
+    #  URB -> DLF -> RBD into ['URB', 'DLF', 'RBD']
     if "->" not in in_string:
         if "-" in in_string:
             split = in_string.split("-")
@@ -37,45 +39,53 @@ def permutation_parser(in_string, lookup):
         split = in_string.split("->")
     # remove any whitespace
     reshaped = [x.replace(" ", "") for x in split]
-    reshaped = [x for x in reshaped if x != ""]
-    #need first letter for orientation calls
-    #first_letters = [x[0] for x in reshaped]
+    reshaped = [x for x in reshaped if x != ""]    
+    '''
+    We have potentially many representations of the same permutation:
+    
+    Problem 1: Multiple representations
+    URB -> FUR -> DFR -> BDR
+    RUB -> RUF -> RDF -> RBD
+    BUR -> URF -> FDR -> DBR
+    
+    Problem 2: Have to twist edges/corners:
+    
+    Both are in canonical representation:
+    UR -> UL & UF -> UB   ==   M2 U M2 U2 M2 U M2
+    (5,20) -> (3,41) & ...
+
+    Second element needs to be flipped in permutation
+(1) UR -> LU & UF -> BU   ==  (M2 U M2 U2 M2 U M2) (M' U2 M U2 M' U M U2 M' U2 M U')
+    (5,20) -> (41,3) & ...
+    
+    Mixture of both problems: 
+    RU -> LU & FU -> BU 
+    (20,5) -> (41,3)
+
+(1) RU -> UL & FU -> UB
+    (20,5) -> (3,41) & ...
+
+    '''
+    #Check to see if it's a permutation on corners or edges.
     modulus = len(reshaped[0])
-    is_edge = modulus == 2
     if modulus != 3 and modulus != 2:
         raise AttributeError("WHAT THE HECKY DECKY, UNCLEAR INPUT TO PARSE. MUST BE CORNERS OR EDGES ONLY")
-    #We now need to see if our cycle is a shift of orientation
-    first = reshaped[0]
-    canonical = sorted(first[0], key = sort_key)
-    #this algebra allows us to deal with both corner and edge commutators
-    seed_reor = sort_key(first[0]) - sort_key(canonical[0])
-    if is_edge:
-        if seed_reor != 0:
-            seed_reor = 1
-    #now we can start going through our reshaped list
-
     #Helper function to get the canonical representation of a cubie, BUR becomes URB
-    canon = lambda it: "".join(sorted(it, key = sort_key))
-    #lookup[canon(first)] gets the canonical representation of a cubie while (seed_reor%modulus) "rotates" it according to the input 
-    output_cycle = [lookup[canon(first)](seed_reor%modulus)]
-    if is_edge: #have to deal with corner/edge commutators seperately
-        for piece in reshaped[1:]:
-            piece_canon = canon(piece)
-            if piece == piece_canon:
-                rel_reor = 0
-            else:
-                rel_reor = 1
-            total_reor = (seed_reor + rel_reor)%modulus
-            out_cubie = lookup[piece_canon](total_reor)
-            output_cycle.append(out_cubie)
-    else:
-        for piece in reshaped[1:]:
-            #Have to get relative reorientation
-            rel_reor = sort_key(piece[0])
-            total_reor = (seed_reor + rel_reor)%modulus
-            out_cubie = lookup[piece_canon](total_reor)
-            output_cycle.append(out_cubie)
-    #we now have a list of [[1,2], [3,4], [5,6]], but we actually want to send stickers 1->3->5 and 2->4->6
-    #so we zip up the list. 
+    canon = lambda piece: "".join(sorted(piece, key = sk))
+    orbit = lambda can_piece: can_piece in {"URB", "ULF", "DLB", "DRF"}
+    output_cycle = []
+    for string in reshaped:
+        #Get canonical representation
+        cs = canon(string)
+        #Determine the piece's orbit
+        orbital = orbit(cs)
+        #determine how that piece was rotated
+        rotation = cs.find(string[0])
+        if orbital:
+            #If it's in a different orbit, twist it in the other direction (no twists have no effects)
+            rotation *= -1
+        #Get the cubie and apply the rotation
+        piece_index = lookup[cs](rotation)
+        output_cycle.append(piece_index)
     zipped_up = zip(*output_cycle)
     return list(zipped_up)

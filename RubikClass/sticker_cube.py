@@ -4,7 +4,6 @@ from permutation_notation_parser import permutation_parser
 import pickle
 from commutator_parser import parse_comm
 
-
 class Cube: #Might actually be a representation of the abstract object.
     """
     Array representation of the Rubik's cube is a 6*9 element array containing the following repeating colors (just the first lowercase letter is used in representation): White, Blue, Red, Green, Orange, Yellow
@@ -210,26 +209,49 @@ class Cube: #Might actually be a representation of the abstract object.
             else:
                 return False
 
-
 rubik = Cube()
+
+rubik("x")
+print(rubik)
+rubik.reset()
+
 rubik("x2")
 print(rubik)
 rubik.reset()
 
-rubik("F")
+rubik("x'")
 print(rubik)
 rubik.reset()
 
-rubik("L")
+rubik("y")
+print(rubik)
+rubik.reset()
+
+rubik("y2")
+print(rubik)
+rubik.reset()
+
+rubik("y'")
 print(rubik)
 rubik.reset()
 
 rubik("z'")
 print(rubik)
+rubik.reset()
+
+rubik("z2")
+print(rubik)
+rubik.reset()
+
+rubik("z")
+print(rubik)
+rubik.reset()
+
 
 "F turns L' Turns x2"
 
-'''
+
+
 if __name__  == "__main__":
     scramble = "L2 B D B' R' L' U F L' U' R2 U B2 L2 D2 B2 R2 U2 F2 U B2"
     solution = """x' z2 f U' S U' S'
@@ -251,4 +273,3 @@ U2 M U' U2' M U'M' U2' M' U2' M2'"""
     sus_string = " ".join(sys.argv[1:])
     rubik(sus_string)
     print(rubik)
-'''
