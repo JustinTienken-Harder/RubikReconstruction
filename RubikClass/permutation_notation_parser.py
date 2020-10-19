@@ -4,9 +4,9 @@ def parse_wrapper(func):
 
     Converts "URB -> ULF & ULB -> URF" to ['URB -> ULF', 'ULB -> URF'] and calls permutation parser on each element of this list.
     '''
-    def wrapping(string_input):
+    def wrapping(string_input, lookup):
         out = string_input.split(" & ")
-        out = [func(x) for x in out]
+        out = [func(x, lookup) for x in out]
         return out
     return wrapping
 
@@ -42,8 +42,8 @@ def permutation_parser(in_string, lookup):
     #first_letters = [x[0] for x in reshaped]
     modulus = len(reshaped[0])
     is_edge = modulus == 2
-    if modulus != 3 or modulus != 2:
-        raise "WHAT THE HECKY DECKY, UNCLEAR INPUT"
+    if modulus != 3 and modulus != 2:
+        raise AttributeError("WHAT THE HECKY DECKY, UNCLEAR INPUT TO PARSE. MUST BE CORNERS OR EDGES ONLY")
     #We now need to see if our cycle is a shift of orientation
     first = reshaped[0]
     canonical = sorted(first[0], key = sort_key)
