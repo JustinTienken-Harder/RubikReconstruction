@@ -1,12 +1,13 @@
-import pickle
-from commutator_parser import parse_comm
+from abstract_cube import AbstractCube
+"""Note to Justin: a = L2 B R D' L'     b = U F R U R' U' F'"""
+
 
 def permute(d, p):
     '''
     Takes a dictionary of the current cubie permutations, and then applies the cycle notation permutation to it.
 
     For example, if we have the identity cubie permutation: {0:0, 1:1, 2:2, 3:3}
-    And we wish to apply the following cycle notation permutation to it: [0,1,2,3]
+    And we wish to apply the following cycle notation permutation to it: [0,1,2,3] equivalently 0 -> 1 -> 2 -> 3
 
     The result is {0:3, 1:0, 2:1, 3:2} with interpretation as, the 0 position currently contains the 3rd cubie.
     The cycles are interpreted as: The cubie in the 0 position goes to the 1th position (and the cubie in the 1st position goes to the 3rd position, etc).
@@ -28,7 +29,7 @@ def permute(d, p):
     #Apply permute
     if p is None:
         return d
-    if type(p[0]) is list:
+    if type(p[0]) is list or type(p[0]) is tuple:
         for perm in p:
             d = _permute(d, perm)
     else:
@@ -36,7 +37,7 @@ def permute(d, p):
     return d
 
 
-class Cube:
+class GroupCube(AbstractCube):
     '''
     The Rubik's Cube class. Contains the appropriate information to represent and perform turns on a representation of a rubik's cube.
 
@@ -80,30 +81,8 @@ class Cube:
          *              |************|
 
          Todo:
-         - Implement a method to check if the cube is solved. Presumably by making a copy of the permutations,
-            then reorienting the cube to the standard orientation (apply rotations to copy so that centers is back to 0:0, 1:1).
-            Finally check to see if edges/corner orientation/permutation are the defaults.
          - Do some more rigorous unit testing, and do more input checking
-         - Upgrade string_parse to accept strings without spaces such as "RUR'U'"
     '''
-    # Static variable defining how to remap some moves into a sequence of other moves
-    _remap = {  'x': ['R', "M'", "L'"], 'x2': ['R2', 'M2', 'L2'], "x'": ["R'", 'M', 'L'], 'y': ['U', "E'", "D'"],
-                'y2': ['U2', 'E2', 'D2'], "y'": ["U'", 'E', 'D'], 'z': ['F', 'S', "B'"], 'z2': ['F2', 'S2', 'B2'],
-                "z'": ["F'", "S'", 'B'], 'r': ['R', "M'"], 'r2': ['R2', 'M2'], "r'": ["R'", 'M'], 'l': ['L', 'M'],
-                'l2': ['L2', 'M2'], "l'": ["L'", "M'"], 'f': ['F', 'S'], 'f2': ['F2', 'S2'], "f'": ["F'", "S'"],
-                'b': ['B', "S'"], 'b2': ['B2', 'S2'], "b'": ["B'", 'S'], 'u': ['U', "E'"], 'u2': ['U2', 'E2'],
-                "u'": ["U'", 'E'], 'd': ['D', 'E'], 'd2': ['D2', 'E2'], "d'": ["D'", "E'"],
-                'Rw': 'r', 'Rw2': 'r2', "Rw'": "r'", 'Lw': 'l', 'Lw2': 'l2', "Lw'": "l'", 'Fw': 'f', 'Fw2': 'f2',
-                "Fw'": "f'", 'Bw': 'b', 'Bw2': 'b2', "Bw'": "b'", 'Uw': 'u', 'Uw2': 'u2', "Uw'": "u'", 'Dw': 'd',
-                'Dw2': 'd2', "Dw'": "d'", "u3'": 'u', 'l3': "l'", "r2'": 'r2', "b2'": 'b2', "S3'": 'S', 'x3': "x'",
-                "b3'": 'b', "Lw2'": 'Lw2', 'Lw3': "Lw'", "y3'": 'y', "M2'": 'M2', "z2'": 'z2', 'L3': "L'", 'Uw3': "Uw'",
-                "z3'": 'z', "F3'": 'F', "R3'": 'R', "y2'": 'y2', 'b3': "b'", "d2'": 'd2', "L2'": 'L2', 'f3': "f'", "Uw2'": 'Uw2',
-                "B3'": 'B', 'd3': "d'", "d3'": 'd', "M3'": 'M', "D2'": 'D2', "Lw3'": 'Lw', "Rw3'": 'Rw', 'U3': "U'", "l2'": 'l2',
-                "Fw3'": 'Fw', 'Dw3': "Dw'", "x3'": 'x', "S2'": 'S2', "D3'": 'D', 'S3': "S'", "L3'": 'L', "f2'": 'f2', "Rw2'": 'Rw2',
-                "r3'": 'r', "R2'": 'R2', 'r3': "r'", 'Rw3': "Rw'", 'F3': "F'", 'u3': "u'", "Dw2'": 'Dw2', "U2'": 'U2', 'z3': "z'",
-                "l3'": 'l', "f3'": 'f', "U3'": 'U', 'Bw3': "Bw'", "Bw3'": 'Bw', 'R3': "R'", "E2'": 'E2', "u2'": 'u2', "Bw2'": 'Bw2',
-                'B3': "B'", 'y3': "y'", 'Fw3': "Fw'", "Fw2'": 'Fw2', 'E3': "E'", "x2'": 'x2', "Dw3'": 'Dw', 'D3': "D'", 'M3': "M'",
-                "E3'": 'E', "Uw3'": 'Uw', "B2'": 'B2', "F2'": 'F2'}
 
     #Static variable defining the permute corners operation for cube notation
     _mco  = {  "U": [0,1,2,3], "U2": [[0,2],[1,3]], "U'": [0,3,2,1],
@@ -134,33 +113,18 @@ class Cube:
     _mce = {"M":[0,3,5,1], "M2":[[0,5],[3,1]], "M'":[0,1,5,3],
                  "E":[1,4,3,2], "E2":[[1,3],[4,2]], "E'":[1,2,3,4],
                  "S":[0,2,5,4], "S2":[[0,5],[2,4]], "S'":[0,4,5,2]}
-
-    #Load up common mistakes
-    _common_mistakes = pickle.load(open("common_mistakes.pckl", "rb"))
-
+    solved_state = [dict((x,x) for x in range(8)), 
+                    dict((x,x) for x in range(12)), 
+                    dict((x,0) for x in range(8)), 
+                    dict((x,0) for x in range(12)),
+                    dict((x,x) for x in range(6))]
     def __init__(self):
         '''
         Setting up the underlying data for a cube's representation
         '''
-        self.history = ""
-        self._corner_perm = dict((x,x) for x in range(8))
-        self._edge_perm = dict((x,x) for x in range(12))
-        self._corner_orient = dict((x,0) for x in range(8))
-        self._edge_orient = dict((x,0) for x in range(12))
-        self._center = dict((x,x) for x in range(6))
+        self.current_state = [x.copy() for x in GroupCube.solved_state]
+        self._corner_perm, self._edge_perm, self._corner_orient, self._edge_orient, self._center = self.current_state
 
-    def __call__(self, moves):
-        if type(moves) is list:
-            self.history += " "+" ".join(moves)
-            for move in moves:
-                self.turn(move)
-        elif type(moves) is str:
-            moves = self.string_parse(moves)
-            self.history += " "+" ".join(moves)
-            for move in moves:
-                self.turn(move)
-        else:
-            print("This can only accept lists of turns, or strings that can be appropriately parsed")
 
     def __str__(self):
         out = ""
@@ -172,33 +136,27 @@ class Cube:
         out += "The current cube orientation is: " + str(self._center) + " \n"
         return out
 
+    @AbstractCube.recursively_remap
     def turn(self, letter):
         '''
         Applies a single turn to the rubik's cube object. If the turn is unusual (such as a rotation or Rw), it first remaps the turn to it's associated subturns, then performs those subturns. It's done in the following order:
 
         Permute corners, reorient corners, permute edges, reorient edges, permute centers
         '''
-        if letter in Cube._remap:
-            if type(Cube._remap[letter]) is list:
-                for lett in Cube._remap[letter]:
-                    self.turn(lett)
-            else: #Must be a single remapped letter.
-                self.turn(Cube._remap[letter])
-        else:
-            if letter in Cube._mco:
-                self._corner_perm = permute(self._corner_perm, Cube._mco[letter]) #Permute corners according to the cycle in lookup table
-            if letter in Cube._oc: #otherwise the was no corner orientation change
-                for position, twist in Cube._oc[letter].items(): #for each position effected by turn
-                    cil = self._corner_perm[position]            #get the cubie now located in the new position
-                    self._corner_orient[cil] = (self._corner_orient[cil] + twist) % 3 #Twist the cubie's absolute orientation
-            if letter in Cube._me:
-                self._edge_perm = permute(self._edge_perm, Cube._me[letter]) #Permute edges according to cycle in lookup table
-            if letter in {"F", "F'", "B", "B'","M", "M'", "S", "S'", "E", "E'"}: #Then the turn effects edge orientation
-                reorient = [self._edge_perm[x] for x in Cube._me[letter]] #get the cubies now located in the new position
-                for cubie in reorient:
-                    self._edge_orient[cubie] = (self._edge_orient[cubie] + 1) % 2 #flip the edges over
-            if letter in Cube._mce:
-                self._center = permute(self._center, Cube._mce[letter])
+        if letter in GroupCube._mco:
+            self._corner_perm = permute(self._corner_perm, GroupCube._mco[letter]) #Permute corners according to the cycle in lookup table
+        if letter in GroupCube._oc: #otherwise the was no corner orientation change
+            for position, twist in GroupCube._oc[letter].items(): #for each position effected by turn
+                cil = self._corner_perm[position]            #get the cubie now located in the new position
+                self._corner_orient[cil] = (self._corner_orient[cil] + twist) % 3 #Twist the cubie's absolute orientation
+        if letter in GroupCube._me:
+            self._edge_perm = permute(self._edge_perm, GroupCube._me[letter]) #Permute edges according to cycle in lookup table
+        if letter in {"F", "F'", "B", "B'","M", "M'", "S", "S'", "E", "E'"}: #Then the turn effects edge orientation
+            reorient = [self._edge_perm[x] for x in GroupCube._me[letter]] #get the cubies now located in the new position
+            for cubie in reorient:
+                self._edge_orient[cubie] = (self._edge_orient[cubie] + 1) % 2 #flip the edges over
+        if letter in GroupCube._mce:
+            self._center = permute(self._center, GroupCube._mce[letter])
 
     def basic_state_vector(self):
         '''
@@ -222,46 +180,6 @@ class Cube:
         out.extend(self._edge_perm[x] for x in range(12))
         return out
 
-    def string_parse(self, string):
-        '''
-        Method to parse input strings. Replaces anything with parenthesis, commas, newlines, forward or backslashes with spaces. Removes any illegible turns which would be comments or empty strings.
-
-        Returns a list of turns.
-
-
-        Todo:
-
-        - Add Commutator notation functionality for parsing (conjugates and commutators).
-
-        - Parse strings without spaces between turns.
-
-        '''
-        #replace common things we'll find with spaces
-        replacements = [("\n"," "), ("("," "), (")"," "), ("/"," "), ("\\", " "), ("["," [ "), ("]"," ] "), (","," , "), (":"," : ")]
-        for item, replacement in replacements:
-            string = string.replace(item, replacement)
-        moves = string.split(" ")
-        legal = {",", ":", "[", "]",
-                'M2', 'U2', 'b2', 'L2', "y3'", 'D', "Lw3'", 'Bw2', 'x', 'F2', "M3'", 'l', 'b3', 'r3', 'f2', "Uw2'", 'R', 'd',
-                "D'", 'Fw', 'D3', "F2'", "D3'", "b3'", 'U3', 'Dw3', "r2'", 'L3', "Dw2'", "l3'", 'E3', "l'", "Rw3'", "Rw'", "Dw'",
-                "Bw3'", "M2'", "D2'", "Uw'", "S'", 'S', "z3'", 'M', 'Lw2', "u3'", "F'", "r3'", 'u2', "Fw3'", 'Uw3', 'l3', "x3'",
-                'r2', 'f3', "L'", 'y', 'U', "Fw'", 'F', 'd2', 'Uw', 'l2', 'u3', "R3'", "d3'", "d2'", "R'", "L3'", "Bw'", "r'", "f3'",
-                "S2'", "x'", "E2'", "d'", 'Bw', "u'", 'S3', "Bw2'", "E'", 'x3', 'R3', 'R2', "M'", "U3'", "B2'", "U'", "Fw2'", 'x2',
-                "l2'", 'y3', 'S2', "u2'", 'b', 'u', 'd3', "Dw3'", 'z3', 'B2', 'y2', "Uw3'", "B3'", "R2'", "Lw'", 'E2', "b2'", 'F3',
-                'Lw3', 'Lw', "y'", 'Fw2', 'Dw2', "f2'", "L2'", 'L', "x2'", 'z', 'B', 'M3', "B'", 'E', 'Dw', "z'", "F3'", 'Rw3', "S3'",
-                "Rw2'", 'D2', 'Bw3', "f'", 'z2', "b'", 'B3', "z2'", "U2'", 'Rw2', "Lw2'", 'Uw2', 'f', 'Fw3', "y2'", 'Rw', 'r', "E3'"}
-        #replace all common spacing mistakes in the list
-        moves = [Cube._common_mistakes[x] if x in Cube._common_mistakes else x for x in moves]
-        moves = " ".join(moves).split(" ") #combine and then split it on space to remove any illegal moves
-        legal_moves = [x for x in moves if x in legal]
-        commutator_remains = " ".join(legal_moves) #make a string for parse_comm
-        #Hopefully nobody uses stuff like Rw in a commutator, otherwise we'll need to update the inverse function
-        #We will find out when we test out the database.
-        last_cleaning = parse_comm(commutator_remains)
-        #This will remove any duplicate spaces introduced by parsing the commutator
-        out = [x for x in last_cleaning.split(" ") if x != ""]
-        #join on spaces and pass it off
-        return out
 
     def is_solved(self):
         '''
@@ -280,7 +198,7 @@ class Cube:
                 return True
             else:
                 return False
-        solved_cube = Cube()
+        solved_cube = GroupCube()
         #Look at the center currently in self._center[0]. Then do the rotation on the solved cube so the centers line up.
         first_rotation = {0:None, 1:"x'", 2:"z'", 3:"x", 4:"z", 5:"x2"}
         rotation_one = first_rotation[self._center[0]]
@@ -310,7 +228,7 @@ U' R' U' R U R' U2' R
 U2 F R U R' U' R U R' U' F'
 U2 M U' U2' M U'M' U2' M' U2' M2'"""
     bad_comm = "[["+scramble+":[[R,U],[R,U]]]:[R2 F2 U2: R2] [U': [F2,U2] F2]]"
-    rubik = Cube()
+    rubik = GroupCube()
     rubik(scramble)
     print(rubik)
     rubik(solution)
