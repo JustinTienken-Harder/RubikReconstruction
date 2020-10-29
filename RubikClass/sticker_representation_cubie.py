@@ -60,23 +60,3 @@ class Cubie(list):
             else:
                 raise AttributeError("Cannot accept argument" + str(t))
 
-
-"""
-String representation of the Rubik's cube is a 6*9 element array containing the following repeating colors (just the first lowercase letter is used in representation): White, Blue, Red, Green, Orange, Yellow
-
-Each side has a number (0,1,2,3,4,5) respectively. This allows you to find whichever face as the orientation changes (U,B,R,F,L,D) respectively. The indices of each face is given by the following equation:
-
-face_number*9 + sticker_location.
-
-This allows us to easily calculate exact stickers based on the following sticker location chart:
-
-                                0    1    2
-
-                                3    4    5
-
-                                6    7    8
-
-Each "orientation" is determined by the shortest x/z rotation to get some face (say, 2) to the U layer. We adopt x2 as the rotation for getting the D layer to the U layer.
-"""
-
-#default_cube_string = 'w'*9+'b'*9+"r"*9+"g"*9+'o'*9+'y'*9
