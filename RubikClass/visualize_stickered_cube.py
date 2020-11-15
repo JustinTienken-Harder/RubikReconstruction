@@ -1,3 +1,6 @@
+import numpy as np
+
+
 def pixel_value_sticker(sticker_array = None, bandw = False):
     if sticker_array is None:
         stickers = list("w"*9+"b"*9+"r"*9+"g"*9+"o"*9+"y"*9)
@@ -26,4 +29,4 @@ def pixel_value_sticker(sticker_array = None, bandw = False):
                 hmm.extend(stickies[(9+3*j):(12+j*3)])
                 hmm.extend(stickies[(18+3*j):(21+j*3)])
                 out.append(hmm)
-    return out
+    return np.array(out)
