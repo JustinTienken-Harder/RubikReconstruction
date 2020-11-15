@@ -1,13 +1,14 @@
 from cyclic_permutation import permute_list_mutable #Used to turn cube
 from generate_cyclic_notation import generate_moves
+from visualize_stickered_cube import pixel_value_sticker
 
 from abstract_cube import AbstractCube
 
 class StickerCube(AbstractCube): #Might actually be a representation of the abstract object.
     """
     Array representation of the Rubik's cube is a 6*9 element array containing the following repeating colors (just the first lowercase letter is used in representation): White, Blue, Red, Green, Orange, Yellow
-    Each side has a number (0,1,2,3,4,5) respectively. This allows you to find whichever face as the orientation changes (U,B,R,F,L,D) respectively. 
-    
+    Each side has a number (0,1,2,3,4,5) respectively. This allows you to find whichever face as the orientation changes (U,B,R,F,L,D) respectively.
+
     The indices of the sticker on every face is given by the following equation:
 
     face_number*9 + sticker_location.
@@ -32,7 +33,7 @@ class StickerCube(AbstractCube): #Might actually be a representation of the abst
         *              |*12**13**14*|
         *              |************|
         *              |*15**16**17*|
-        *    L-side    |************|   R-side        
+        *    L-side    |************|   R-side
         * |************|************|************|
         * |*36**37**38*|*00**01**02*|*18**19**20*|
         * |************|************|************|
@@ -63,11 +64,11 @@ class StickerCube(AbstractCube): #Might actually be a representation of the abst
         self.history = ""
         #We could modify this for potentially learning to generate specific sub-steps, such as OLL/CMLL/etc
         self.current_state = StickerCube.solved_state.copy()
-        
+
     def __str__(self):
         out = ""
         out += "So far the moves performed are: " + str(self.history) + " \n"
-        out += "The current state is given by: \n" 
+        out += "The current state is given by: \n"
         for i in range(6):
             out += str(self.current_state[i*9:(i+1)*9]) + "\n"
         return out
@@ -76,24 +77,36 @@ class StickerCube(AbstractCube): #Might actually be a representation of the abst
     def turn(self, letter):
         '''
         Applies a single turn to the Rubik's cube object.
-        
+
         Moves all the stickers for a given turn.
         '''
         cycle = self.turn_to_cycle[letter]
         permute_list_mutable(self.current_state, cycle)
-    
+
     #Would include basic_state_vector in here, but we already have the state represented as a vector.
     def reset(self):
         self.history = ""
         self.current_state = StickerCube.solved_state.copy()
 
+    def visualize(self, compact = True, color =True):
+        """
+        Returns an array of the current state of the cube. Must convert to numpy array for most purposes!
+
+        Colors are hard-coded;
+        Acceptable stickers are 'w','b','r','g','o','y','e','';
+        Two representations, colorful (3 channel) or black and white (1 channel);
+        Shape is (6, 9, 3) if color, else (6, 9)
+        """
+        image_numpy_array = pixel_value_sticker(sticker_array = self.current_state, bandw = True)
+        return image_numpy_array
+
     def is_solved(self):
         '''
-        Method to check if the cube is "solved". 
-        
+        Method to check if the cube is "solved".
+
         Slow method is implemented if we ever want to redefine what a "solved" state to allow for blacked out stickers (such as CMLL).
 
-        Fast method checks the number of distinct colors on each side. 
+        Fast method checks the number of distinct colors on each side.
         Slow method performs all 24 rotations to the cube. Only occurs if you redefine Cube class's global solved_state.
         '''
         #This is the boolean value that checks if we modified the Cube class from some other file. If this is the case we use the slow version.
