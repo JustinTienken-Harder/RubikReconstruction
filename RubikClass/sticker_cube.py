@@ -97,7 +97,8 @@ class StickerCube(AbstractCube): #Might actually be a representation of the abst
         Two representations, colorful (3 channel) or black and white (1 channel);
         Shape is (6, 9, 3) if color, else (6, 9)
         """
-        image_numpy_array = pixel_value_sticker(sticker_array = self.current_state, bandw = True)
+        bandw = not color
+        image_numpy_array = pixel_value_sticker(sticker_array = self.current_state, bandw = bandw)
         return image_numpy_array
 
     def is_solved(self):

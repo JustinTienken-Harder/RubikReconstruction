@@ -38,19 +38,19 @@ class AbstractCube:
         _remap: Collection of moves that are commonly seen but are implemented through other turns
 
         recursively_remap: A function that can be used to wrap any subclass's turn method to recursively remap moves if they aren't implemented.
-    
+
         string_parse: function to parse a string into a list of moves -- replaces common mistakes and parses commutator notation.
-        
+
         _common_mistakes: Dictionary of common mistakes in notation that we'll replace.
 
         __call__(): accepts lists of turns or strings of moves. Performs these moves on the current cube. No return.
 
-        history: string to keep track of the cube's history. 
+        history: string to keep track of the cube's history.
 
 
     Every cube representation must implement these methods:
 
-        turn(): 
+        turn():
 
 
     """
@@ -128,18 +128,18 @@ class AbstractCube:
         out = [x for x in last_cleaning.split(" ") if x != ""]
         #join on spaces and pass it off
         return out
-    
+
     def reset(self):
         """Must implement a reset method on any representation."""
         raise NotImplementedError(AbstractCube.reset.__doc__)
 
-    #Functions that need implementations in child class.
+    #Functions that allows child class to decorate a basic turn so that it'll recursively remap unperformable turns
     recursively_remap = lambda func: make_turn_recursively_remap(func)
     def turn(self, move):
         """
-        Every Representation (or child) of an AbstractCube must implement a turn method. 
+        Every Representation (or child) of an AbstractCube must implement a turn method.
 
-        Minimally, you must be able to perform the following moves: 
+        Minimally, you must be able to perform the following moves:
                     "U", "U2", "U'",
                     "R", "R2", "R'",
                     "L", "L2", "L'",
@@ -154,8 +154,8 @@ class AbstractCube:
         """
         #Raises the docstring as a not-implemented error
         raise NotImplementedError(AbstractCube.turn.__doc__)
-    
-    
+
+
     def is_solved(self):
         """Must provide a method to check if a particular representation is solved. Should return True or False."""
         raise NotImplementedError(AbstractCube.is_solved.__doc__)
@@ -167,8 +167,3 @@ class AbstractCube:
     def solved_state(self):
         """Must implement a solved state field within any representation of a Rubik's Cube"""
         raise NotImplementedError(AbstractCube.solved_state.__doc__)
-
-
-
-
-
