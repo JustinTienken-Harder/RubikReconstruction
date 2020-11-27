@@ -103,7 +103,7 @@ class DQNAgent:
         current_qs_list = self.model.predict(current_states)
 
         #Get future states from minibatch, get the maximum argument of the target_model
-        new_states = np.arrat([experience[3] for experience in minibatch])
+        new_states = np.array([experience[3] for experience in minibatch])
         future_qs_list = self.target_model.predict(new_states)
 
         #We have the q's of our model for the current states, and the q's of the temporary model's next state.
